@@ -1,14 +1,5 @@
 //=============== CLASSES ====================
 
-
-document.addEventListener("visibilitychange", function() {
-    if (document.hidden){
-        console.log("Browser tab is hidden")
-    } else {
-        console.log("Browser tab is visible")
-    }
-});
-
 const visualCanvas = document.getElementById("visualization");
 const visualContext = visualCanvas.getContext("2d");
 visualCanvas.width = 400;
@@ -340,6 +331,13 @@ function togglePause(){
 		pause();
 	}
 }
+document.addEventListener("visibilitychange", function() {
+    if (document.hidden){
+        pause();
+    } else {
+        unpause();
+    }
+});
 
 // SIMULATION SPEED BUTTONS
 function increaseSimulationSpeed(){
