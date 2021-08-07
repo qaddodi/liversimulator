@@ -1,49 +1,13 @@
 //=============== CLASSES ====================
-//==== CLASSES =====
-class Vessel{
-	constructor(){
-		this.pos= new Vector(0,0);
-		this.maskPos = new Vector(0,0);
-		this.width=20;
-		this.height=200;
-		this.startColor= "rgb(255,0,0)";
-		this.endColor= "rgb(100,0,0)";
-		this.flowSpeed= 1;
-	}
 
-	render(context){
-		this.gradient = context.createLinearGradient(
-			this.pos.x,
-			this.pos.y-this.height/2,
-			this.pos.x,
-			this.pos.y-this.height/2+this.height
-		);
 
-		context.beginPath();
-		context.rect(this.pos.x,0,this.width,this.height/2);
-		context.clip();
-		var div = 4;
-		for(var i = 0; i <= div; i++){
-			if(i%2==0){
-				this.gradient.addColorStop(i/div,this.startColor);
-			}else{
-				this.gradient.addColorStop(i/div,this.endColor);
-			}
-		}
-		context.fillStyle = this.gradient;
-		context.fillRect(this.pos.x,this.pos.y-this.height/2,this.width,this.height);
-	}
-
-	flow(dt){
-		this.pos.y += dt*this.flowSpeed;
-		if(this.pos.y>this.height/2){
-			this.pos.y = 0;
-		}
-		if(this.pos.y<0){
-			this.pos.y=this.height/2;
-		}
-	}
-};
+document.addEventListener("visibilitychange", function() {
+    if (document.hidden){
+        console.log("Browser tab is hidden")
+    } else {
+        console.log("Browser tab is visible")
+    }
+});
 
 const visualCanvas = document.getElementById("visualization");
 const visualContext = visualCanvas.getContext("2d");
