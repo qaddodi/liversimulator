@@ -1,25 +1,27 @@
 //=============== CLASSES ====================
 
+const textSize = 20;
+const lineSize = 3;
+
 const visualCanvas = document.getElementById("visualization");
 const visualContext = visualCanvas.getContext("2d");
-visualCanvas.width = 400;
-visualCanvas.height = 100;
-
-var visualArray = [];
-
-//=========================================== 
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
-
 const graphCanvas = document.getElementById("graph");
 const graphContext = graphCanvas.getContext("2d");
-graphCanvas.width = 400;
-graphCanvas.height = 250;
-canvas.width = 400;
-canvas.height = 250;
+const illustrationWidth = 600;
+const illustrationHeight = 400;
+graphCanvas.width = illustrationWidth;
+graphCanvas.height = illustrationHeight;
+canvas.width = illustrationWidth;
+canvas.height = illustrationHeight;
+visualCanvas.width = illustrationWidth;
+visualCanvas.height = illustrationHeight/2;
 
 var chart;
 var debug = false; 
+
+var visualArray = [];
 
 // Handling dark and light modes
 var darkColors = 
@@ -60,7 +62,7 @@ var lightColors =
 	subtitle: "rgb(100,100,100)"
 }
 
-var colors = lightColors;
+var colors = darkColors;
 document.getElementById("main").style.backgroundColor = colors.bg;
 document.getElementsByClassName("title")[0].style.color=colors.title;
 document.getElementsByClassName("subtitle")[0].style.color=colors.subtitle;
@@ -131,6 +133,7 @@ var drugs = {
 }
 
 function reset(){
+	visualArray = [];
 	liver = 
 	{
 		function: 1,
@@ -285,7 +288,7 @@ function nafld(){
 	if(liver.steatosis > 0.2){
 		if(Math.random()<liver.steatosis){
 			annotateGraph(t,"NASH");
-			liver.integrity = 0.997;
+			liver.integrity -= 0.003;
 		}
 	}
 }
@@ -331,6 +334,7 @@ function togglePause(){
 		pause();
 	}
 }
+
 document.addEventListener("visibilitychange", function() {
     if (document.hidden){
         pause();
@@ -524,7 +528,7 @@ function annotateGraph(x,string){
 	annotation.label.position = "start";
 	annotation.label.font = {};
 	annotation.label.font.style = "oblique";
-	annotation.label.font.size = 10;
+	annotation.label.font.size = textSize;
 	annotation.borderColor = colors.annotationLine;
 	annotation.label.color = colors.annotationText;
 	annotations.push(annotation);
@@ -573,7 +577,7 @@ function initiateGraph(){
 			lineTension: 0.5,
 			fill: false,
 			borderColor: colors.AST,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'A'
 		},
 		{
@@ -583,7 +587,7 @@ function initiateGraph(){
 			fill: false,
 			lineTension: 0.5,
 			borderColor: colors.ALT,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'A'
 		},
 		{
@@ -593,7 +597,7 @@ function initiateGraph(){
 			lineTension: 0.5,
 			fill: false,
 			borderColor: colors.ALP,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'A'
 
 		},
@@ -604,7 +608,7 @@ function initiateGraph(){
 			lineTension: 0.5,
 			borderColor: colors.Tbili,
 			fill: false,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'B'
 		},
 		// {
@@ -615,7 +619,7 @@ function initiateGraph(){
 		// 	borderDash:[2,2],
 		// 	borderColor: colors.Dbili,
 		// 	fill: false,
-		// 	borderWidth: 2,
+		// 	borderWidth: lineSize,
 		// 	yAxisID: 'B'
 		// },
 		{
@@ -626,7 +630,7 @@ function initiateGraph(){
 			// borderDash:[2,2],
 			borderColor: colors.inr,
 			fill: false,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'B'
 		}
 	]};
@@ -666,7 +670,11 @@ function initiateGraph(){
 							suggestedMin: 0,
 							suggestedMax: 100,
 							grid:{display:false},
-							ticks: {fontSize: 10,color:colors.chart}
+							ticks: {font:{
+								size:textSize
+								},
+								color:colors.chart
+							}
 						},
 					B:
 						{
@@ -674,7 +682,11 @@ function initiateGraph(){
 							grace: "15%",
 							suggestedMin:0,
 							suggestedMax:3,
-							ticks: {fontSize: 10,color:colors.chart},
+							ticks: {font:{
+								size:textSize
+								},
+								color:colors.chart
+							},
 							grid:{display:false},
 							title:{
 								display:true,
@@ -700,7 +712,9 @@ function initiateGraph(){
 								maxRotation:0,
 								minRotation:0,
 								display: true,
-								fontSize: 10,
+								font:{
+									size:textSize
+								},
 								color:colors.chart,
 								stepSize:2,
 							}
@@ -713,7 +727,8 @@ function initiateGraph(){
 						labels:{
 							color:colors.chart,
 							boxHeight:0,
-							boxWidth:10
+							boxWidth:10,
+							font:{size:textSize}
 						}
 					},
 					chartAreaBorder:{
@@ -728,8 +743,6 @@ function initiateGraph(){
 	chart.options.plugins.annotation.annotations = annotations;
 }
 
-var visualizationSquareSpeed = 2;
-
 //UPDATING THE GRAPH IS CALLED EVERY SET AMOUNT ABOVE
 function updateGraph(dt){
 
@@ -742,10 +755,12 @@ function updateGraph(dt){
 	var alp = measuredLabs.alp;
 	var dbili = dBili;
 	var inr = measuredLabs.inr;
-	if(x*visualizationSquareSpeed==x*visualizationSquareSpeed.toFixed(0)){
+	//VISUALIZATION
+	
+	var visualizeEverHour = 6;
+	if(t.toFixed(0)%visualizeEverHour==0){
 		visualArray.push({
 			t: x,
-			slice: 10,
 			alt:alt,
 			ast:ast,
 			alp:alp,
@@ -754,7 +769,6 @@ function updateGraph(dt){
 		// renderVisualization();
 	}
 	
-
 	alpArray.push({x,y: alp});
 	altArray.push({x,y: alt}); 
 	astArray.push({x,y: ast});
@@ -779,19 +793,29 @@ function updateGraph(dt){
 }
 
 function renderVisualization(){
-	visualArray.forEach(item =>{
+	visualContext.fillStyle = colors.bg;
+	visualContext.fillRect(0,0,visualContext.canvas.width,visualContext.canvas.height);
+	var sliceWidth = 5;
+	var sliceHeight = 20;
+	for(var i = 0; i<visualArray.length;i++){
+		var item = visualArray[i];
 		var color = {
 			r: item.alp*255/1200,
 			g: item.ast*255/7000,
 			b: item.alt*255/7000
 		}
+		if(colors.dark){
+			color.r = 255-color.r;
+			color.g = 255-color.g;
+			color.b = 255-color.b;
+		}
 		var style = "rgb(".concat(color.r.toString()).concat(",").concat(color.g.toString()).concat(",").concat(color.b.toString()).concat(")");
 		item.style = style;
 		visualContext.fillStyle = item.style;
-		var x = item.t*item.slice%visualContext.canvas.width;
-		var y = item.slice*Math.floor((item.t*item.slice)/visualContext.canvas.width);
-		visualContext.fillRect(x,y,item.slice,item.slice);	
-	})
+		var x = (i*sliceWidth)%visualContext.canvas.width;
+		var y = sliceHeight*Math.floor((i*sliceWidth)/visualContext.canvas.width);
+		visualContext.fillRect(x,y,sliceWidth,sliceHeight);	
+	}
 }
 
 // MAIN UPDATE FUNCTIONALITY THIS IS CALLED EVERY FRAME
@@ -808,6 +832,12 @@ function renderPathology(){
 
 // RENDERING THE MONITOR DISPLAYING ALT/AST AND LIVER PICTURE
 function renderMonitor(){
+	var y = context.canvas.height*0.1;
+	var x = context.canvas.width*0.1;
+	var textSize = context.canvas.height*0.075;
+	var decimals = 0;
+	var liverSize = context.canvas.width*0.3;
+
 	var indicatorHL = {
 		alt: measuredLabs.alt < 5 ? "(L)" : measuredLabs.alt>40 ? "(H)" : "",
 		ast: measuredLabs.ast < 5 ? "(L)" : measuredLabs.ast>40 ? "(H)" : "",
@@ -818,35 +848,32 @@ function renderMonitor(){
 
 	}
 
-	context.drawImage(liverImg,250,20,150,150);
+	context.drawImage(liverImg,context.canvas.width-liverSize,20,liverSize,liverSize);
 
 	context.fillStyle=colors.text;
-	context.font = '20px Courier';
-	var decimals = 0;
-	var y = 50;
-	var x = 20;
-	var vSpace = 20;
+	context.font = textSize.toString().concat('px Courier');
+		
 	context.fillStyle=colors.AST;
-	context.fillText("AST: ".concat(measuredLabs.ast.toFixed(decimals).toString()).concat(indicatorHL.ast),x,y+vSpace*0);
+	context.fillText("AST: ".concat(measuredLabs.ast.toFixed(decimals).toString()).concat(indicatorHL.ast),x,y+textSize*0);
 	context.fillStyle=colors.ALT;
-	context.fillText("ALT: ".concat(measuredLabs.alt.toFixed(decimals).toString()).concat(indicatorHL.alt),x,y+vSpace*1);
+	context.fillText("ALT: ".concat(measuredLabs.alt.toFixed(decimals).toString()).concat(indicatorHL.alt),x,y+textSize*1);
 	context.fillStyle=colors.ALP;
-	context.fillText("ALP: ".concat(measuredLabs.alp.toFixed(decimals).toString()).concat(indicatorHL.alp),x,y+vSpace*2);
+	context.fillText("ALP: ".concat(measuredLabs.alp.toFixed(decimals).toString()).concat(indicatorHL.alp),x,y+textSize*2);
 	context.fillStyle=colors.Tbili;
-	context.fillText("TBILI: ".concat(measuredLabs.tbili.toFixed(2).toString()).concat(indicatorHL.tbili),x,y+vSpace*3);
+	context.fillText("TBILI: ".concat(measuredLabs.tbili.toFixed(2).toString()).concat(indicatorHL.tbili),x,y+textSize*3);
 	context.fillStyle=colors.inr;
-	context.fillText("INR: ".concat(measuredLabs.inr.toFixed(1).toString()).concat(indicatorHL.inr),x,y+vSpace*4);
+	context.fillText("INR: ".concat(measuredLabs.inr.toFixed(1).toString()).concat(indicatorHL.inr),x,y+textSize*4);
 	
 	context.fillStyle=colors.text;
-	context.fillText("BMI: ".concat(patient.bmi.toFixed(1).toString()).concat(indicatorHL.bmi),x,y+vSpace*5);
-	// context.fillText("Integrity:".concat(100*liver.integrity.toFixed(2).toString()).concat("%"),x,y+vSpace*5);
-	context.fillText("Function:".concat(100*liver.function.toFixed(2).toString()).concat("%"),x,y+vSpace*6);
+	context.fillText("BMI: ".concat(patient.bmi.toFixed(1).toString()).concat(indicatorHL.bmi),x,y+textSize*5);
+	// context.fillText("Integrity:".concat(100*liver.integrity.toFixed(2).toString()).concat("%"),x,y+textSize*5);
+	context.fillText("Function:".concat(100*liver.function.toFixed(2).toString()).concat("%"),x,y+textSize*6);
 
-	// context.fillText("Bile Flow:".concat(100*liver.bileFlow.toFixed(2).toString()).concat("%"),x,y+vSpace*7);
-	context.fillText("Steatosis:".concat(100*liver.steatosis.toString()).concat("% "),x,y+vSpace*7);
+	// context.fillText("Bile Flow:".concat(100*liver.bileFlow.toFixed(2).toString()).concat("%"),x,y+textSize*7);
+	context.fillText("Steatosis:".concat(100*liver.steatosis.toString()).concat("% "),x,y+textSize*7);
 
 	var rString = rFactor < 2 ? "Cholestatic" : rFactor > 5 ? "Hepatocellular" : "Mixed";
-	context.fillText("R Factor:".concat(rFactor.toString()).concat(" ").concat(rString),x,y+vSpace*8);
+	context.fillText("R Factor:".concat(rFactor.toString()).concat(" ").concat(rString),x,y+textSize*8);
 
 }
 
@@ -932,4 +959,3 @@ function loop(){
 initiateGraph();
 reset();
 start(fps);
-
