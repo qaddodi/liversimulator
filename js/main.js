@@ -3,8 +3,8 @@
 const textSize = 20;
 const lineSize = 3;
 
-const visualCanvas = document.getElementById("visualization");
-const visualContext = visualCanvas.getContext("2d");
+// const visualCanvas = document.getElementById("visualization");
+// const visualContext = visualCanvas.getContext("2d");
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 const graphCanvas = document.getElementById("graph");
@@ -17,8 +17,8 @@ graphCanvas.width = illustrationWidth;
 graphCanvas.height = illustrationHeight;
 canvas.width = illustrationWidth;
 canvas.height = illustrationHeight;
-visualCanvas.width = illustrationWidth;
-visualCanvas.height = illustrationHeight/2;
+// visualCanvas.width = illustrationWidth;
+// visualCanvas.height = illustrationHeight/2;
 
 
 var chart;
