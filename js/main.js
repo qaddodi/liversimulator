@@ -1,25 +1,30 @@
 //=============== CLASSES ====================
 
+const textSize = 20;
+const lineSize = 3;
+
 const visualCanvas = document.getElementById("visualization");
 const visualContext = visualCanvas.getContext("2d");
-visualCanvas.width = 400;
-visualCanvas.height = 100;
-
-var visualArray = [];
-
-//=========================================== 
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
-
 const graphCanvas = document.getElementById("graph");
 const graphContext = graphCanvas.getContext("2d");
-graphCanvas.width = 400;
-graphCanvas.height = 250;
-canvas.width = 400;
-canvas.height = 250;
+const illustrationWidth = 600;
+const illustrationHeight = 400;
+const tbl = document.getElementById("labsTable");
+
+graphCanvas.width = illustrationWidth;
+graphCanvas.height = illustrationHeight;
+canvas.width = illustrationWidth;
+canvas.height = illustrationHeight;
+visualCanvas.width = illustrationWidth;
+visualCanvas.height = illustrationHeight/2;
+
 
 var chart;
 var debug = false; 
+
+var visualArray = [];
 
 // Handling dark and light modes
 var darkColors = 
@@ -38,7 +43,9 @@ var darkColors =
 	inr:"rgb(200,0,200)",
 	debug: "white",
 	title: "white",
-	subtitle: "rgb(200,200,200)"
+	subtitle: "rgb(200,200,200)",
+	abnormalLab: "rgb(0,255,255)",
+	bgHeader: "rgb(100,100,50)"
 }
 
 var lightColors = 
@@ -57,7 +64,9 @@ var lightColors =
 	inr:"rgb(200,0,200)",
 	debug: "black",
 	title: "black",
-	subtitle: "rgb(100,100,100)"
+	subtitle: "rgb(100,100,100)",
+	abnormalLab: "rgb(0,0,255)",
+	bgHeader: "rgb(225,225,175)"
 }
 
 var colors = lightColors;
@@ -73,6 +82,7 @@ function toggleLights(){
 	}
 	chart.destroy();
 	initiateGraph();
+	updateTable();
 	render();
 	document.getElementById("main").style.backgroundColor = colors.bg;
 	document.getElementsByClassName("title")[0].style.color = colors.title;
@@ -131,6 +141,10 @@ var drugs = {
 }
 
 function reset(){
+	tbl.innerHTML = "";
+	initializeTable();
+	updateTable();
+	visualArray = [];
 	liver = 
 	{
 		function: 1,
@@ -285,7 +299,7 @@ function nafld(){
 	if(liver.steatosis > 0.2){
 		if(Math.random()<liver.steatosis){
 			annotateGraph(t,"NASH");
-			liver.integrity = 0.997;
+			liver.integrity -= 0.003;
 		}
 	}
 }
@@ -314,14 +328,14 @@ function toggleDebug(){
 // PAUSE AND UNPAUSE FUNCTIONALITY ======= YES NEED ALL THREE FUNCTIONS ======
 var paused = false;
 function pause(){
-	stop == true ? stop = false:stop = true;
 	paused = true;
+	stop == true ? stop = false:stop = true;
 }
 
 function unpause(){
+	paused = false;
 	stop == true ? stop = false: stop = true;
 	start(fps);
-	paused = false;
 }
 
 function togglePause(){
@@ -331,13 +345,17 @@ function togglePause(){
 		pause();
 	}
 }
-document.addEventListener("visibilitychange", function() {
-    if (document.hidden){
-        pause();
-    } else {
-        unpause();
-    }
-});
+
+// document.addEventListener("visibilitychange", function() {
+//     if (document.hidden){
+// 		console.log("paused");
+//         pause();
+//     }
+// 	if (document.hidden==false) {
+// 		console.log("unpaused");
+//         unpause();
+//     }
+// });
 
 // SIMULATION SPEED BUTTONS
 function increaseSimulationSpeed(){
@@ -524,7 +542,7 @@ function annotateGraph(x,string){
 	annotation.label.position = "start";
 	annotation.label.font = {};
 	annotation.label.font.style = "oblique";
-	annotation.label.font.size = 10;
+	annotation.label.font.size = textSize;
 	annotation.borderColor = colors.annotationLine;
 	annotation.label.color = colors.annotationText;
 	annotations.push(annotation);
@@ -573,7 +591,7 @@ function initiateGraph(){
 			lineTension: 0.5,
 			fill: false,
 			borderColor: colors.AST,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'A'
 		},
 		{
@@ -583,7 +601,7 @@ function initiateGraph(){
 			fill: false,
 			lineTension: 0.5,
 			borderColor: colors.ALT,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'A'
 		},
 		{
@@ -593,7 +611,7 @@ function initiateGraph(){
 			lineTension: 0.5,
 			fill: false,
 			borderColor: colors.ALP,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'A'
 
 		},
@@ -604,7 +622,7 @@ function initiateGraph(){
 			lineTension: 0.5,
 			borderColor: colors.Tbili,
 			fill: false,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'B'
 		},
 		// {
@@ -615,7 +633,7 @@ function initiateGraph(){
 		// 	borderDash:[2,2],
 		// 	borderColor: colors.Dbili,
 		// 	fill: false,
-		// 	borderWidth: 2,
+		// 	borderWidth: lineSize,
 		// 	yAxisID: 'B'
 		// },
 		{
@@ -626,7 +644,7 @@ function initiateGraph(){
 			// borderDash:[2,2],
 			borderColor: colors.inr,
 			fill: false,
-			borderWidth: 2,
+			borderWidth: lineSize,
 			yAxisID: 'B'
 		}
 	]};
@@ -666,7 +684,11 @@ function initiateGraph(){
 							suggestedMin: 0,
 							suggestedMax: 100,
 							grid:{display:false},
-							ticks: {fontSize: 10,color:colors.chart}
+							ticks: {font:{
+								size:textSize
+								},
+								color:colors.chart
+							}
 						},
 					B:
 						{
@@ -674,7 +696,11 @@ function initiateGraph(){
 							grace: "15%",
 							suggestedMin:0,
 							suggestedMax:3,
-							ticks: {fontSize: 10,color:colors.chart},
+							ticks: {font:{
+								size:textSize
+								},
+								color:colors.chart
+							},
 							grid:{display:false},
 							title:{
 								display:true,
@@ -700,7 +726,9 @@ function initiateGraph(){
 								maxRotation:0,
 								minRotation:0,
 								display: true,
-								fontSize: 10,
+								font:{
+									size:textSize
+								},
 								color:colors.chart,
 								stepSize:2,
 							}
@@ -713,13 +741,18 @@ function initiateGraph(){
 						labels:{
 							color:colors.chart,
 							boxHeight:0,
-							boxWidth:10
+							boxWidth:10,
+							font:{size:textSize}
 						}
 					},
 					chartAreaBorder:{
 						borderColor:colors.chart,
 						borderWidth:1
-					}
+					},
+					tooltip:{
+						mode: 'index',
+						intersect: false
+					},
 				}
 			},
 			plugins: [chartAreaBorder]
@@ -727,8 +760,6 @@ function initiateGraph(){
 	);
 	chart.options.plugins.annotation.annotations = annotations;
 }
-
-var visualizationSquareSpeed = 2;
 
 //UPDATING THE GRAPH IS CALLED EVERY SET AMOUNT ABOVE
 function updateGraph(dt){
@@ -742,25 +773,22 @@ function updateGraph(dt){
 	var alp = measuredLabs.alp;
 	var dbili = dBili;
 	var inr = measuredLabs.inr;
-	if(x*visualizationSquareSpeed==x*visualizationSquareSpeed.toFixed(0)){
-		visualArray.push({
-			t: x,
-			slice: 10,
-			alt:alt,
-			ast:ast,
-			alp:alp,
-			tbili:bili
-		})
-		// renderVisualization();
+
+	var indicatorHL = {
+		alt: measuredLabs.alt < 5 ? "(L)" : measuredLabs.alt>40 ? "(H)" : "",
+		ast: measuredLabs.ast < 5 ? "(L)" : measuredLabs.ast>40 ? "(H)" : "",
+		alp: measuredLabs.alp < 35 ? "(L)" : measuredLabs.alp>130 ? "(H)" : "",
+		tbili: measuredLabs.tbili < 0.1 ? "(L)" : measuredLabs.tbili>1.2 ? "(H)" : "",
+		inr: measuredLabs.inr < 0.5 ? "(L)" : measuredLabs.inr>1.1 ? "(H)" : "",
+		bmi: patient.bmi < 18 ? "(L)" : patient.bmi>24.9 ? "(H)" : ""
 	}
 	
-
-	alpArray.push({x,y: alp});
-	altArray.push({x,y: alt}); 
-	astArray.push({x,y: ast});
-	biliArray.push({x,y: bili});
-	dBiliArray.push({x,y: dbili});
-	inrArray.push({x,y:inr});
+	alpArray.push({x,y: alp,indicator:indicatorHL.alp});
+	altArray.push({x,y: alt,indicator:indicatorHL.alt}); 
+	astArray.push({x,y: ast,indicator:indicatorHL.ast});
+	biliArray.push({x,y: bili,indicator:indicatorHL.tbili});
+	dBiliArray.push({x,y: dbili,indicator:indicatorHL.tbili});
+	inrArray.push({x,y:inr,indicator:indicatorHL.inr});
 
 	if(altArray.length>maxPoints){altArray.shift()};
 	if(astArray.length>maxPoints){astArray.shift()};
@@ -779,19 +807,29 @@ function updateGraph(dt){
 }
 
 function renderVisualization(){
-	visualArray.forEach(item =>{
+	visualContext.fillStyle = colors.bg;
+	visualContext.fillRect(0,0,visualContext.canvas.width,visualContext.canvas.height);
+	var sliceWidth = 5;
+	var sliceHeight = 20;
+	for(var i = 0; i<visualArray.length;i++){
+		var item = visualArray[i];
 		var color = {
 			r: item.alp*255/1200,
 			g: item.ast*255/7000,
 			b: item.alt*255/7000
 		}
+		if(colors.dark){
+			color.r = 255-color.r;
+			color.g = 255-color.g;
+			color.b = 255-color.b;
+		}
 		var style = "rgb(".concat(color.r.toString()).concat(",").concat(color.g.toString()).concat(",").concat(color.b.toString()).concat(")");
 		item.style = style;
 		visualContext.fillStyle = item.style;
-		var x = item.t*item.slice%visualContext.canvas.width;
-		var y = item.slice*Math.floor((item.t*item.slice)/visualContext.canvas.width);
-		visualContext.fillRect(x,y,item.slice,item.slice);	
-	})
+		var x = (i*sliceWidth)%visualContext.canvas.width;
+		var y = sliceHeight*Math.floor((i*sliceWidth)/visualContext.canvas.width);
+		visualContext.fillRect(x,y,sliceWidth,sliceHeight);	
+	}
 }
 
 // MAIN UPDATE FUNCTIONALITY THIS IS CALLED EVERY FRAME
@@ -802,12 +840,120 @@ function update(dt){
 	updateLiver(dt);
 }
 
+//================ RENDER TABLE
+var tableEnabled = true;
+window.setInterval(updateTable,1000);
+
+function toggleTable(){
+	if(tableEnabled){
+		removeTable();
+		tableEnabled = false;
+	}else{
+		console.log(tableEnabled);
+		tableEnabled = true;
+		initializeTable();
+		updateTable();
+	}
+}
+
+function removeTable(){
+	tbl.innerHTML = "";
+}
+
+function initializeTable(){
+	if(tableEnabled){
+		var r = 6;
+		var c = 10;
+		tbl.innerHTML = "";
+		for(var i = 0; i < r;i++){
+			var row = document.createElement("tr");
+			for(var j = 0; j < c;j++){
+				var cell = document.createElement("td");
+				var cellText = document.createTextNode("");
+				row.appendChild(cell);
+				cell.appendChild(cellText);
+			}
+			tbl.appendChild(row);
+		}
+	}
+}
+
+function updateTable(){
+	if(tableEnabled){
+		initializeTable();
+		// Day, AST, ALT, ALP, Tbili, INR
+		// [Name, array, color, toFixed(how many decimals)]
+		var combinedArray = [
+			["Day",astArray,colors.text,0],
+			["AST",astArray,colors.AST,0],
+			["ALT",altArray,colors.ALT,0],
+			["ALP",alpArray,colors.ALP,0],
+			["Tbili",biliArray,colors.Tbili,1],
+			["INR",inrArray,colors.inr,1]
+		];
+		var combinedArrayModified = [];
+		for(var i = 0; i<combinedArray.length; i++){
+			combinedArrayModified[i] = [combinedArray[i][0],[]];
+			for(var j = 0; j<combinedArray[i][1].length; j++){
+				var hour = Math.round(combinedArray[i][1][j].x*24);
+				var day = Math.round(combinedArray[i][1][j].x);
+				if(hour%24 == 0){
+					var value = parseFloat(combinedArray[i][1][j].y.toFixed(combinedArray[i][3]));
+					var indicator = combinedArray[i][1][j].indicator;
+					if(i==0){
+						value = day;
+						indicator = "";
+					}
+					var abnormal = indicator == "" ? false : true;		
+					var color = abnormal == false ? colors.text : colors.abnormalLab;
+					combinedArrayModified[i][1].push({x:day,y:value,color:color,abnormal:abnormal});
+				}
+			}
+		}
+		tbl.style.borderColor = colors.text;
+		for(var i = 0; i < tbl.getElementsByTagName("tr").length;i++){
+			var row = tbl.getElementsByTagName("tr")[i];
+			var cell = row.getElementsByTagName("td")[0];
+			cell.style.color = combinedArray[i][2];
+			cell.style.borderColor = colors.text;
+			cell.style.backgroundColor = colors.bgHeader;
+			var cellText = document.createTextNode(combinedArrayModified[i][0]);
+			cell.childNodes[0].remove();
+			cell.appendChild(cellText);
+			for(var j = 1; j<row.getElementsByTagName("td").length;j++){
+				row.getElementsByTagName("td")[j].style.borderColor = colors.text;
+				if(j<=combinedArrayModified[i][1].length){
+					var cellIndex = row.getElementsByTagName("td").length-j;
+					var cell = row.getElementsByTagName("td")[cellIndex];
+					var index = combinedArrayModified[i][1].length-j;
+					var arrayData = combinedArrayModified[i][1][index];
+					var cellText = document.createTextNode(arrayData.y);
+					cell.style.color = arrayData.color;
+					cell.style.fontWeight = arrayData.abnormal ? "bold" : "normal";
+					if(i==0){
+						cell.style.fontWeight = "bold";
+						cell.style.backgroundColor = colors.bgHeader;
+					}
+					cell.childNodes[0].remove();
+					cell.appendChild(cellText);
+				}
+			}
+		}
+	}
+}
+
 //RENDERING =======
 function renderPathology(){
 }
 
 // RENDERING THE MONITOR DISPLAYING ALT/AST AND LIVER PICTURE
 function renderMonitor(){
+	var y = context.canvas.height*0.1;
+	var x = context.canvas.width*0.1;
+	var textSize = context.canvas.height*0.075;
+	var decimals = 0;
+	var liverSize = context.canvas.width*0.3;
+
 	var indicatorHL = {
 		alt: measuredLabs.alt < 5 ? "(L)" : measuredLabs.alt>40 ? "(H)" : "",
 		ast: measuredLabs.ast < 5 ? "(L)" : measuredLabs.ast>40 ? "(H)" : "",
@@ -818,35 +964,32 @@ function renderMonitor(){
 
 	}
 
-	context.drawImage(liverImg,250,20,150,150);
+	context.drawImage(liverImg,context.canvas.width-liverSize,20,liverSize,liverSize);
 
 	context.fillStyle=colors.text;
-	context.font = '20px Courier';
-	var decimals = 0;
-	var y = 50;
-	var x = 20;
-	var vSpace = 20;
+	context.font = textSize.toString().concat('px Courier');
+		
 	context.fillStyle=colors.AST;
-	context.fillText("AST: ".concat(measuredLabs.ast.toFixed(decimals).toString()).concat(indicatorHL.ast),x,y+vSpace*0);
+	context.fillText("AST: ".concat(measuredLabs.ast.toFixed(decimals).toString()).concat(indicatorHL.ast),x,y+textSize*0);
 	context.fillStyle=colors.ALT;
-	context.fillText("ALT: ".concat(measuredLabs.alt.toFixed(decimals).toString()).concat(indicatorHL.alt),x,y+vSpace*1);
+	context.fillText("ALT: ".concat(measuredLabs.alt.toFixed(decimals).toString()).concat(indicatorHL.alt),x,y+textSize*1);
 	context.fillStyle=colors.ALP;
-	context.fillText("ALP: ".concat(measuredLabs.alp.toFixed(decimals).toString()).concat(indicatorHL.alp),x,y+vSpace*2);
+	context.fillText("ALP: ".concat(measuredLabs.alp.toFixed(decimals).toString()).concat(indicatorHL.alp),x,y+textSize*2);
 	context.fillStyle=colors.Tbili;
-	context.fillText("TBILI: ".concat(measuredLabs.tbili.toFixed(2).toString()).concat(indicatorHL.tbili),x,y+vSpace*3);
+	context.fillText("TBILI: ".concat(measuredLabs.tbili.toFixed(2).toString()).concat(indicatorHL.tbili),x,y+textSize*3);
 	context.fillStyle=colors.inr;
-	context.fillText("INR: ".concat(measuredLabs.inr.toFixed(1).toString()).concat(indicatorHL.inr),x,y+vSpace*4);
+	context.fillText("INR: ".concat(measuredLabs.inr.toFixed(1).toString()).concat(indicatorHL.inr),x,y+textSize*4);
 	
 	context.fillStyle=colors.text;
-	context.fillText("BMI: ".concat(patient.bmi.toFixed(1).toString()).concat(indicatorHL.bmi),x,y+vSpace*5);
-	// context.fillText("Integrity:".concat(100*liver.integrity.toFixed(2).toString()).concat("%"),x,y+vSpace*5);
-	context.fillText("Function:".concat(100*liver.function.toFixed(2).toString()).concat("%"),x,y+vSpace*6);
+	context.fillText("BMI: ".concat(patient.bmi.toFixed(1).toString()).concat(indicatorHL.bmi),x,y+textSize*5);
+	// context.fillText("Integrity:".concat(100*liver.integrity.toFixed(2).toString()).concat("%"),x,y+textSize*5);
+	context.fillText("Function:".concat(100*liver.function.toFixed(2).toString()).concat("%"),x,y+textSize*6);
 
-	// context.fillText("Bile Flow:".concat(100*liver.bileFlow.toFixed(2).toString()).concat("%"),x,y+vSpace*7);
-	context.fillText("Steatosis:".concat(100*liver.steatosis.toString()).concat("% "),x,y+vSpace*7);
+	// context.fillText("Bile Flow:".concat(100*liver.bileFlow.toFixed(2).toString()).concat("%"),x,y+textSize*7);
+	context.fillText("Steatosis:".concat(100*liver.steatosis.toString()).concat("% "),x,y+textSize*7);
 
 	var rString = rFactor < 2 ? "Cholestatic" : rFactor > 5 ? "Hepatocellular" : "Mixed";
-	context.fillText("R Factor:".concat(rFactor.toString()).concat(" ").concat(rString),x,y+vSpace*8);
+	context.fillText("R Factor:".concat(rFactor.toString()).concat(" ").concat(rString),x,y+textSize*8);
 
 }
 
@@ -929,7 +1072,7 @@ function loop(){
 	}
 }
 
+
 initiateGraph();
 reset();
 start(fps);
-

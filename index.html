@@ -3,6 +3,33 @@
     <title>Liver Simulator</title>
     
     <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        td, th{
+            padding: 0.25rem;
+            border: 1px solid;
+            width:50px;
+            text-align: center;
+        }
+        table tr:first-child, table th:first-child{
+            font-weight: bold;
+            /* background: rgb(255, 253, 200); */
+        }
+        table tr td:nth-child(1){
+            font-weight: bold;
+        }
+
+        .container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
         .button{
             background-color:rgb(200, 200, 200);
             border:none;
@@ -11,6 +38,7 @@
             display:inline-block;
             border-radius:0%;
             margin-bottom:10px;
+            font-size:20px;
         }
         .button:hover{
             background-color: rgb(255, 255, 255);
@@ -34,15 +62,6 @@
             font-style:italic;
             padding-bottom:20px;
         }
-
-        .body{
-            display: flex;
-            justify-content: flex-start;
-            flex-direction: column;
-            flex-wrap: nowrap;
-            align-content: center;
-            align-items: center;
-        }
         .debug{
             visibility:hidden;
             position:absolute;
@@ -52,6 +71,7 @@
         }
     </style>
     
+    <div class="container">
     <div class="title">
         <div>LIVER SIMULATOR</div>
         <div class = "subtitle">by Mohammad Almeqdadi, MD</div>
@@ -62,7 +82,7 @@
             <input class="button" type="button" value="Pause" onclick="togglePause();" />
             <input class="button" type="button" value="Dark Mode" onclick="toggleLights();" />
             <input class="button" type="button" value="Reset" onclick="reset();" />
-            <input class="button" type="button" value="Debug" onclick="toggleDebug();" />
+            <input class="button" type="button" value="Toggle Table" onclick="toggleTable();" />
             <input class="button" type="button" value="Speed+" onclick="increaseSimulationSpeed();" />
             <input class="button" type="button" value="Speed-" onclick="decreaseSimulationSpeed();" />
         </div>
@@ -89,8 +109,12 @@
 
         </div>
         <canvas id="graph"></canvas>
+        <div id="tableDiv">
+            <table id=labsTable></table>
+        </div>
         <canvas id="canvas"></canvas>
         <canvas id="visualization"></canvas>
+    </div>
 
     </body>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.1/dist/chart.min.js"></script>
